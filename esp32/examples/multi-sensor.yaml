@@ -1,0 +1,88 @@
+# Multi-Sensor ESP32 Node
+# Hardware: ESP32 + BME280 (I2C) + PIR motion sensor + LED strip
+# Learning: I2C communication, binary sensors, light effects
+
+esphome:
+  name: multi-sensor
+  friendly_name: Multi Sensor
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Multi-Sensor Fallback"
+    password: "fallback123"
+
+captive_portal:
+
+# I2C Bus (for BME280)
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+
+# BME280 - Temperature, Humidity, Pressure
+sensor:
+  - platform: bme280
+    temperature:
+      name: "Temperature"
+      oversampling: 16x
+    pressure:
+      name: "Pressure"
+    humidity:
+      name: "Humidity"
+    address: 0x76
+    update_interval: 60s
+
+  # WiFi signal
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+# PIR Motion Sensor
+binary_sensor:
+  - platform: gpio
+    pin: GPIO25
+    name: "Motion"
+    device_class: motion
+    filters:
+      - delayed_off: 10s  # Stay "on" for 10s after motion stops
+
+# Status LED Strip (WS2812B)
+light:
+  - platform: esp32_rmt_led_strip
+    name: "Status LED"
+    pin: GPIO27
+    num_leds: 8
+    rmt_channel: 0
+    rgb_order: GRB
+    chipset: ws2812
+    effects:
+      - pulse:
+      - strobe:
+      - rainbow:
+          speed: 10
+          width: 50
+
+# Text sensor for device info
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+    ssid:
+      name: "Connected SSID"

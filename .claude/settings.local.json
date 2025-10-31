@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/hazzard/home-assistant/esphome/**)",
+      "Read(//home/hazzard/ollama/**)",
+      "Read(//home/hazzard/n8n/**)",
+      "Bash(tree:*)",
+      "Bash(ip addr:*)",
+      "Bash(ip route:*)",
+      "Read(//run/systemd/resolve/**)",
+      "Bash(docker network inspect:*)",
+      "Bash(nmap:*)",
+      "Bash(arp:*)",
+      "Bash(resolvectl status:*)",
+      "Bash(sudo nmap:*)",
+      "Bash(ip neighbor:*)",
+      "Read(//etc/netplan/**)",
+      "Bash(mount:*)",
+      "Read(//home/hazzard/cloudflared/**)",
+      "Bash(ss:*)",
+      "Bash(ufw status:*)",
+      "Bash(iptables:*)",
+      "Read(//home/hazzard/home-assistant/config/**)",
+      "Bash(ip a:*)",
+      "Bash(ping:*)",
+      "Bash(dig:*)",
+      "Bash(docker network:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(curl:*)",
+      "Bash(docker stats:*)",
+      "Bash(ip:*)",
+      "Bash(systemctl status:*)",
+      "Bash(journalctl:*)",
+      "Bash(docker logs:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

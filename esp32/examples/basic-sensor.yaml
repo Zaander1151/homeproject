@@ -1,0 +1,70 @@
+# Basic ESP32 with Temperature/Humidity Sensor
+# Hardware: ESP32 DevKit + DHT22 sensor
+# Learning: Basic sensor reading and Home Assistant integration
+
+esphome:
+  name: basic-sensor
+  friendly_name: Basic Sensor
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_key
+
+# Enable OTA updates
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Optional: Set static IP
+  # manual_ip:
+  #   static_ip: 192.168.40.110
+  #   gateway: 192.168.40.1
+  #   subnet: 255.255.255.0
+
+  # Enable fallback hotspot
+  ap:
+    ssid: "Basic-Sensor Fallback"
+    password: "fallback123"
+
+captive_portal:
+
+# DHT22 Temperature and Humidity Sensor
+sensor:
+  - platform: dht
+    pin: GPIO4
+    model: DHT22
+    temperature:
+      name: "Temperature"
+      accuracy_decimals: 1
+    humidity:
+      name: "Humidity"
+      accuracy_decimals: 0
+    update_interval: 60s
+
+  # WiFi Signal Strength
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+
+  # Uptime sensor
+  - platform: uptime
+    name: "Uptime"
+
+# Status LED (built-in LED on most boards)
+status_led:
+  pin:
+    number: GPIO2
+    inverted: false
