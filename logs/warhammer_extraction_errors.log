@@ -1,0 +1,55 @@
+Errors during extraction at Sun Nov 16 05:39:13 PM UTC 2025
+  ✗ Extraction failed
+  ✗ Extraction failed
+  ✗ Extraction failed
+[/mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites/Primaris Ancient_ancient-prime-beef.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+note:  /mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites/Primaris Ancient_ancient-prime-beef.zip may be a plain executable, not an archive
+unzip:  cannot find zipfile directory in one of /mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites/Primaris Ancient_ancient-prime-beef.zip or
+        /mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites/Primaris Ancient_ancient-prime-beef.zip.zip, and cannot find /mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites/Primaris Ancient_ancient-prime-beef.zip.ZIP, period.
+  ✗ Extraction failed
+[/mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+note:  /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip may be a plain executable, not an archive
+unzip:  cannot find zipfile directory in one of /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip or
+        /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip.zip, and cannot find /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip.ZIP, period.
+  ✗ Extraction failed
+[/mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+note:  /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip may be a plain executable, not an archive
+unzip:  cannot find zipfile directory in one of /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip or
+        /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip.zip, and cannot find /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists/IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip.ZIP, period.
+  ✗ Extraction failed
+  ✗ Extraction failed
+[/mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack/Canoptek Scarabs_9th-robot-bug-swarm.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+note:  /mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack/Canoptek Scarabs_9th-robot-bug-swarm.zip may be a plain executable, not an archive
+unzip:  cannot find zipfile directory in one of /mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack/Canoptek Scarabs_9th-robot-bug-swarm.zip or
+        /mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack/Canoptek Scarabs_9th-robot-bug-swarm.zip.zip, and cannot find /mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack/Canoptek Scarabs_9th-robot-bug-swarm.zip.ZIP, period.
+  ✗ Extraction failed
+error:  cannot create /mnt/storage/models/Warhammer-40K/Adeptus-Custodes/03_Elite/Grey32543463/golden-palace-earth-guards/Custodes 2:1.obj
+        Invalid argument
+error:  cannot create /mnt/storage/models/Warhammer-40K/Adeptus-Custodes/03_Elite/Grey32543463/golden-palace-earth-guards/Custodes 1:1.obj
+        Invalid argument
+  ✗ Extraction failed
+[/mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/The+torture+lord's+boss._Cronos.zip]
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+note:  /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/The+torture+lord's+boss._Cronos.zip may be a plain executable, not an archive
+unzip:  cannot find zipfile directory in one of /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/The+torture+lord's+boss._Cronos.zip or
+        /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/The+torture+lord's+boss._Cronos.zip.zip, and cannot find /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/The+torture+lord's+boss._Cronos.zip.ZIP, period.
+  ✗ Extraction failed

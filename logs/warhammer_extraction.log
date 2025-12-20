@@ -1,0 +1,66 @@
+Starting extraction at Sun Nov 16 05:39:13 PM UTC 2025
+Finding all zip files...
+Found 22 zip files to extract
+Processing: Scout Parts zip.zip in /mnt/storage/models/Warhammer-40K/Tau/02_Troops/files/Fish People Scouts
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Scout Parts zip.zip in /mnt/storage/models/Warhammer-40K/Tau/04_Fast Attack/files/Fish People Scouts
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: CSM_Chaos Bolter Boys.zip in /mnt/storage/models/Warhammer-40K/Chaos/Chaos Space Marines/02_Troops
+  ✗ Extraction failed
+Processing: MK2_v3.zip in /mnt/storage/models/Warhammer-40K/Chaos/Thousand Sons/02_Troops/43642720/files
+  ✗ Extraction failed
+Processing: MK2_v3.zip in /mnt/storage/models/Warhammer-40K/Chaos/Thousand Sons/03_Elites/43642720/files
+  ✗ Extraction failed
+Processing: Primaris Ancient_ancient-prime-beef.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/03_Elites
+  ✗ Extraction failed
+Processing: Jims_Starry_Space_hover_AFV.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/Non-Codex Models/Mazer/starry-space-hover-afv-optimized-for-resin/files
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: IF devastators_Space+Soldiers+with+Fist+Symbols+and++Heavy+Weapons.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists
+  ✗ Extraction failed
+Processing: IF tactical squad_Space+Soldiers+with+Fist+Symbols.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Imperial fists
+  ✗ Extraction failed
+Processing: Old Markings.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/chapters/Space Wolves/files
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Steel-Fighters-Blockade-Eradicator-Tornado-Battery.zip in /mnt/storage/models/Warhammer-40K/Space-Marines/parts
+  ✗ Extraction failed
+Processing: Canoptek Scarabs_9th-robot-bug-swarm.zip in /mnt/storage/models/Warhammer-40K/Necrons/04_Fast Attack
+  ✗ Extraction failed
+Processing: Interstellar_Army_Tank_Turret_Add-On_-_Ryza_Pattern_Battlecannon.zip in /mnt/storage/models/Warhammer-40K/Astra-Militarum/05_Heavy Support/Mkhand_Industries/interstellar-army-tank-turret-add-on-ryza-pattern-battlecannon
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Interstellar Army Lemoine Russel Zerstörer.zip in /mnt/storage/models/Warhammer-40K/Astra-Militarum/05_Heavy Support/Mkhand_Industries/interstellar-army-lemoine-russel-zerstorer
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Interstellar_Army_Tank_Turret_Add-On_-_Plasma_Discharger.zip in /mnt/storage/models/Warhammer-40K/Astra-Militarum/05_Heavy Support/Mkhand_Industries/interstellar-army-tank-turret-add-on-plasma-discharger
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Custodian Warden_golden-palace-earth-guards.zip in /mnt/storage/models/Warhammer-40K/Adeptus-Custodes/03_Elite
+  ✗ Extraction failed
+Processing: Santodes_Parts.zip in /mnt/storage/models/Warhammer-40K/Adeptus-Custodes/non-codex models/files/SANTODES The Legendary Artifice/Santodes/files
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: The+torture+lord's+boss._Cronos.zip in /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar
+  ✗ Extraction failed
+Processing: Accessories.zip in /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/files/Incubi
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Pose1.zip in /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/files/Incubi
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Pose2.zip in /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/files/Incubi
+  ✓ Extracted successfully
+  ✓ Removed zip file
+Processing: Pose3.zip in /mnt/storage/models/Warhammer-40K/Drukhari-Dark-Eldar/files/Incubi
+  ✓ Extracted successfully
+  ✓ Removed zip file
+
+========================================
+Extraction Complete at Sun Nov 16 05:39:24 PM UTC 2025
+Total files: 22
+Successfully extracted and removed: 12
+Failed: 10
+========================================

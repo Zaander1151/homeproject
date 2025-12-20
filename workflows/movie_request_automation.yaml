@@ -1,0 +1,20 @@
+# Movie Request Automation for Home Assistant
+# Add this to your automations.yaml or paste via the UI
+
+- alias: "Voice Movie Request"
+  description: "Request movies via voice command with Telegram confirmation"
+  trigger:
+    - platform: conversation
+      command:
+        - "RequestMovie"
+  action:
+    - service: rest_command.n8n_movie_request
+      data:
+        movie_name: "{{ trigger.slots.movie_name.value }}"
+        chat_id: "YOUR_TELEGRAM_CHAT_ID"  # Replace with your Telegram chat ID
+    - service: tts.speak
+      target:
+        entity_id: tts.piper  # Adjust if using different TTS
+      data:
+        media_player_entity_id: "{{ trigger.device_id }}"  # Responds on the device that triggered
+        message: "Searching for {{ trigger.slots.movie_name.value }}. Check Telegram for confirmation."

@@ -22,6 +22,13 @@
    - Who's Watching
 5. **Office Voice Routing** - TTS output to PC speakers
 6. **Calendar Check** - Tomorrow's events query
+7. **Smart Plug Safety Automations**:
+   - **Glue Gun Auto-Off** - Automatically turns off after 30 minutes
+   - **Coffee Machine Auto-Off** - Automatically turns off after 1 hour
+8. **Glue Gun Voice Control Suite** (3 commands):
+   - Turn On/Off
+   - Status Check
+   - Safety reminder on activation
 
 **Your Plex voice controls are particularly impressive!** Very comprehensive implementation.
 

@@ -1,0 +1,14 @@
+# REST Command Configuration for Home Assistant
+# Add this to your configuration.yaml
+
+rest_command:
+  n8n_movie_request:
+    url: "http://n8n:5678/webhook/movie-request"  # Update with your actual n8n webhook URL
+    method: POST
+    headers:
+      Content-Type: "application/json"
+    payload: >
+      {
+        "movie_name": "{{ movie_name }}",
+        "chat_id": "{{ chat_id }}"
+      }

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+~/homeproject/chatgpt/venv/bin/openai api chat.completions.create \
+  -m gpt-5 \
+  -g user "$*"

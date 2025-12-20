@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "gemini-search": {
+      "command": "node",
+      "args": ["/home/hazzard/homeproject/mcp-gemini-search/index.js"],
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyAa6XidjIAEbij_FXZickDeM-VXvEWoQRI"
+      }
+    },
+    "code-analyzer": {
+      "command": "/home/hazzard/homeproject/mcp-task-delegation/venv/bin/python",
+      "args": ["/home/hazzard/homeproject/mcp-task-delegation/code-analyzer/server.py"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "OLLAMA_CODE_MODEL": "qwen2.5-coder:7b",
+        "GEMINI_API_KEY": "AIzaSyAa6XidjIAEbij_FXZickDeM-VXvEWoQRI"
+      }
+    },
+    "file-summarizer": {
+      "command": "/home/hazzard/homeproject/mcp-task-delegation/venv/bin/python",
+      "args": ["/home/hazzard/homeproject/mcp-task-delegation/file-summarizer/server.py"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "OLLAMA_SUMMARY_MODEL": "qwen2.5:7b"
+      }
+    },
+    "doc-generator": {
+      "command": "/home/hazzard/homeproject/mcp-task-delegation/venv/bin/python",
+      "args": ["/home/hazzard/homeproject/mcp-task-delegation/doc-generator/server.py"],
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyAa6XidjIAEbij_FXZickDeM-VXvEWoQRI"
+      }
+    },
+    "network-admin": {
+      "command": "node",
+      "args": ["/home/hazzard/homeproject/mcp-network-admin/server.js"],
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "OLLAMA_MODEL": "qwen3:8b",
+        "GEMINI_API_KEY": "AIzaSyAa6XidjIAEbij_FXZickDeM-VXvEWoQRI"
+      }
+    }
+  }
+}

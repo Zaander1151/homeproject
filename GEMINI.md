@@ -69,3 +69,107 @@ The following are some of the most common commands used to manage the system, as
 *   **Start Home Assistant services:** `cd /home/hazzard/home-assistant && docker-compose up -d`
 *   **Compile an ESPHome configuration:** `docker exec -it esphome esphome compile <config_file.yaml>`
 *   **List Ollama models:** `docker exec -it ollama ollama list`
+
+## Hardware Interaction Guidelines
+
+**CRITICAL:** When the user asks to identify devices, scan ports, or find MAC addresses for USB-connected hardware:
+
+1.  **Context Awareness:** Recognize that this project involves ESP32 development. The user likely has an ESP32 connected via USB.
+2.  **Do Not Refuse Immediately:** Do not assume you "cannot access hardware" or "cannot see MAC addresses on USB".
+3.  **Active Scanning:**
+    *   **Check USB Devices:** Run `lsusb` to see connected bridges (e.g., CP210x, CH340).
+    *   **Check Serial Ports:** Run `ls /dev/ttyUSB*` or `ls /dev/ttyACM*`.
+    *   **Query ESP32:** If a serial port is found (e.g., `/dev/ttyUSB0`), **use `esptool` to query the chip info.**
+        ```bash
+        esptool --port /dev/ttyUSB0 read_mac
+        ```
+    *   **Check Kernel Logs:** Run `dmesg | tail` or grep for `tty` to see attachment events.
+4.  **Assumption:** If a generic "USB to UART" bridge is seen, assume it is an ESP32 target unless proven otherwise.
+
+## File Permissions and Write Access
+
+**Issue:** Docker containers (Home Assistant, Ollama, n8n, etc.) run as root and create files owned by `root:root`. This can cause permission errors when trying to edit configuration files.
+
+**Solution Applied:** All files in `/home/hazzard/` have been changed to ownership `hazzard:hazzard`:
+
+```bash
+sudo chown -R hazzard:hazzard /home/hazzard/
+```
+
+**Why This Works:**
+*   Docker containers running as root can still read and write to files owned by any user
+*   The Gemini AI assistant runs as the `hazzard` user and can now write to all files
+*   Home Assistant, ESPHome, and other services continue to function normally
+
+**Important Files:**
+*   `/home/hazzard/home-assistant/config/automations.yaml` - Home Assistant automations
+*   `/home/hazzard/home-assistant/config/configuration.yaml` - Home Assistant main config
+*   `/home/hazzard/homeproject/` - Documentation and planning directory
+*   All other directories under `/home/hazzard/` are now writable
+
+**Note:** If you encounter permission errors writing to any file in the home directory, the ownership has likely been reset by a Docker container. Simply re-run the chown command above.
+
+## Home Assistant Automation Guidelines
+
+### CRITICAL: YAML Formatting Rules
+
+**ALWAYS use proper YAML syntax when editing `/home/hazzard/home-assistant/config/automations.yaml`.** Incorrect YAML formatting will break Home Assistant and put it into recovery mode.
+
+**Common Mistakes to AVOID:**
+
+1. **NEVER use JSON-style braces `{` or `}` in YAML files**
+   ```yaml
+   # ❌ WRONG - This will break Home Assistant
+   target:{
+     entity_id: climate.my_ecobee
+
+   # ✅ CORRECT - Use proper YAML indentation
+   target:
+     entity_id: climate.my_ecobee
+   ```
+
+2. **ALWAYS use consistent indentation (2 spaces per level)**
+   ```yaml
+   # ✅ CORRECT
+   action:
+     - service: climate.set_temperature
+       target:
+         entity_id: climate.my_ecobee
+       data:
+         temperature: 20
+         hvac_mode: "auto"
+   ```
+
+3. **NEVER mix tabs and spaces** - Use only spaces for indentation
+
+4. **ALWAYS validate YAML before saving** - If you're unsure, use a YAML validator
+
+### Automation Structure
+
+When creating Home Assistant automations, ensure each automation has a unique ID. Generate a 32-character string using the automation's alias as a seed for consistency.
+
+**Standard Automation Template:**
+```yaml
+- id: 'unique_32_char_id_here'
+  alias: Descriptive Automation Name
+  description: Brief description of what this automation does
+  trigger:
+    - platform: state
+      entity_id: sensor.example
+  condition: []
+  action:
+    - service: notify.notify
+      data:
+        message: "Automation triggered"
+  mode: single
+```
+
+### Testing Changes
+
+After editing automations.yaml:
+1. Verify YAML syntax inside the Home Assistant container:
+   ```bash
+   docker exec homeassistant python -c "import yaml; yaml.safe_load(open('/config/automations.yaml'))"
+   ```
+2. If valid, reload automations via Home Assistant UI or restart the container
+3. Check logs for errors: `docker logs homeassistant --tail 50`

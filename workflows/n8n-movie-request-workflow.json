@@ -1,0 +1,394 @@
+{
+  "name": "Voice Movie Request with Telegram Confirmation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "movie-request",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Movie Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "movie-request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"received\", \"movie\": $json.movie_name } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://overseerr:5055/api/v1/search?query={{ encodeURIComponent($json.movie_name) }}&page=1&language=en",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "MTc2NDQ1NjgzNjIzNzdhODg0Nzg2LTg1NDEtNGUzZi05ZWIyLTlkOWYxOTYzNGI4OQ=="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "search-overseerr",
+      "name": "Search Overseerr",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-results",
+              "leftValue": "={{ $json.results.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-if-found",
+      "name": "Check if Movie Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the first (best) result\nconst movie = $input.item.json.results[0];\n\n// Format the movie details\nconst movieData = {\n  tmdbId: movie.id,\n  mediaType: movie.mediaType,\n  title: movie.title || movie.name,\n  year: movie.releaseDate ? new Date(movie.releaseDate).getFullYear() : 'Unknown',\n  overview: movie.overview || 'No description available',\n  posterPath: movie.posterPath ? `https://image.tmdb.org/t/p/w500${movie.posterPath}` : null,\n  originalQuery: $input.item.json.movie_name,\n  status: movie.mediaInfo?.status || 'unknown'\n};\n\nreturn movieData;"
+      },
+      "id": "format-movie-data",
+      "name": "Format Movie Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=🎬 *Movie Request*\n\n*{{ $json.title }}* ({{ $json.year }})\n\n{{ $json.overview }}\n\n📊 Status: {{ $json.status === 'available' ? '✅ Already Available' : $json.status === 'pending' ? '⏳ Already Requested' : '❓ Not Requested' }}\n\nDo you want to request this movie?",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Confirm Request",
+                    "callbackData": "=confirm_{{ $json.tmdbId }}"
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "callbackData": "cancel_request"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-telegram-confirmation",
+      "name": "Send Telegram Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1340, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=❌ No movie found for: *{{ $json.movie_name }}*\n\nPlease try a different search term.",
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-not-found",
+      "name": "Send Not Found Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1120, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger - Button Press",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 600],
+      "webhookId": "telegram-callback",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-confirm",
+              "leftValue": "={{ $json.callback_query.data }}",
+              "rightValue": "confirm_",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-callback-action",
+      "name": "Check Callback Action",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract TMDB ID from callback data\nconst callbackData = $input.item.json.callback_query.data;\nconst tmdbId = callbackData.replace('confirm_', '');\nconst chatId = $input.item.json.callback_query.message.chat.id;\nconst messageId = $input.item.json.callback_query.message.message_id;\n\nreturn {\n  tmdbId: parseInt(tmdbId),\n  chatId: chatId,\n  messageId: messageId\n};"
+      },
+      "id": "extract-tmdb-id",
+      "name": "Extract TMDB ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://overseerr:5055/api/v1/request",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "MTc2NDQ1NjgzNjIzNzdhODg0Nzg2LTg1NDEtNGUzZi05ZWIyLTlkOWYxOTYzNGI4OQ=="
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mediaType",
+              "value": "movie"
+            },
+            {
+              "name": "mediaId",
+              "value": "={{ $json.tmdbId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "request-movie",
+      "name": "Request Movie via Overseerr",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "messageType": "editMessageText",
+        "messageId": "={{ $json.messageId }}",
+        "text": "=✅ *Movie Requested Successfully!*\n\nYour movie has been added to the download queue. You'll be notified when it's ready.",
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-success",
+      "name": "Send Success Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1120, 500],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.callback_query.message.chat.id }}",
+        "messageType": "editMessageText",
+        "messageId": "={{ $json.callback_query.message.message_id }}",
+        "text": "❌ Request cancelled.",
+        "additionalFields": {}
+      },
+      "id": "send-cancelled",
+      "name": "Send Cancelled Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, 700],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Movie Request": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Search Overseerr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Overseerr": {
+      "main": [
+        [
+          {
+            "node": "Check if Movie Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Movie Found": {
+      "main": [
+        [
+          {
+            "node": "Format Movie Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Not Found Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Movie Data": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger - Button Press": {
+      "main": [
+        [
+          {
+            "node": "Check Callback Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Callback Action": {
+      "main": [
+        [
+          {
+            "node": "Extract TMDB ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Cancelled Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract TMDB ID": {
+      "main": [
+        [
+          {
+            "node": "Request Movie via Overseerr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Movie via Overseerr": {
+      "main": [
+        [
+          {
+            "node": "Send Success Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

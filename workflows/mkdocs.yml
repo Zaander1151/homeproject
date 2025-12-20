@@ -1,0 +1,63 @@
+site_name: Home Automation Project Documentation
+site_description: Documentation for home automation infrastructure and projects
+docs_dir: docs-web
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Setup Guides:
+      - Voice Movie Requests: voice-movie-requests-setup.md
+      - Storage Monitoring Quick Start: storage-monitoring-quick-start.md
+      - Storage Monitoring Setup: storage-monitoring-setup.md
+      - Fix Atom Echo Voice Assistant: fix-atom-echo-voice-assistant.md
+      - Roku Voice Commands: roku-voice-commands.md
+      - Wake Word Options: wake-word-options.md
+  - ESP32 Projects:
+      - ESP32 Starter Projects: esp32-starter-projects.md
+      - Future Voice Projects: future-voice-projects.md
+      - Electronics Workbench Build: electronics-workbench-build.md
+      - Workbench Layout Plan: workbench-layout-plan.md
+      - Shopping List Phase 1: shopping-list-phase1.md
+      - My Electronics Lab Plan: my-electronics-lab-plan.md
+      - Beginner Safety Guide: beginner-safety-guide.md
+  - Home Assistant:
+      - Integrations: home-assistant-integrations.md
+      - Entities Reference: home-assistant-entities.md
+      - Expose Entities to Malory: expose-entities-to-malory.md
+      - Automation Recommendations: automation-recommendations.md
+  - Network:
+      - Network Topology: network-topology.md
+      - Network Device Map: network-device-map.md
+      - Device Identification: device-identification-analysis.md
+  - Configuration:
+      - Claude Code Guide: CLAUDE.md
+      - Gemini Guide: GEMINI.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - tables
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search

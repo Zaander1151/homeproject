@@ -1,0 +1,26 @@
+{
+  "name": "mcp-network-admin",
+  "version": "1.0.0",
+  "description": "Network Administrator Agent - Autonomous network troubleshooting for home automation infrastructure",
+  "type": "module",
+  "main": "server.js",
+  "bin": {
+    "mcp-network-admin": "./server.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mcp",
+    "network",
+    "docker",
+    "diagnostics",
+    "automation"
+  ],
+  "author": "Home Automation Infrastructure",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  }
+}

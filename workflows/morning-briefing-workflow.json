@@ -1,0 +1,417 @@
+{
+  "name": "Morning Briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "morning-briefing",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/states/weather.hamilton_weather_forecast",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-weather",
+      "name": "Get Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/calendars/calendar.hazzard25_gmail_com",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-calendar",
+      "name": "Get Calendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bronco-fuel",
+              "name": "bronco_fuel",
+              "value": "={{ $('Get Bronco Status').item.json.attributes.fuel }}",
+              "type": "string"
+            },
+            {
+              "id": "bronco-locked",
+              "name": "bronco_locked",
+              "value": "={{ $('Get Bronco Lock').item.json.state }}",
+              "type": "string"
+            },
+            {
+              "id": "bedroom-fan",
+              "name": "bedroom_fan",
+              "value": "={{ $('Get Bedroom Fan').item.json.state }}",
+              "type": "string"
+            },
+            {
+              "id": "phone-battery",
+              "name": "phone_battery",
+              "value": "={{ $('Get Phone Battery').item.json.state }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "merge-smart-home",
+      "name": "Merge Smart Home Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/states/sensor.fordpass_fuel",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-bronco-status",
+      "name": "Get Bronco Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 350]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/states/lock.fordpass_doorlock",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-bronco-lock",
+      "name": "Get Bronco Lock",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/states/switch.bedroom_fan",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-bedroom-fan",
+      "name": "Get Bedroom Fan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/states/sensor.pixel_10_pro_battery_level",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-phone-battery",
+      "name": "Get Phone Battery",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": []
+        },
+        "options": {}
+      },
+      "id": "merge-all-data",
+      "name": "Merge All Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "model": "llama3.1:8b",
+        "prompt": "=You are creating a concise morning briefing. Keep it conversational and brief (maximum 30 seconds when spoken - about 75 words).\n\nWeather: {{ $json.weather_temp }}°C now, high {{ $json.weather_high }}°C, {{ $json.weather_condition }}. {{ $json.weather_precip }}% chance of precipitation.\n\nCalendar: {{ $json.calendar_events || 'No meetings today' }}\n\nSports News:\n{{ $json.sports_news }}\n\nTech News:\n{{ $json.tech_news }}\n\nSmart Home: Bronco at {{ $json.bronco_fuel }}% fuel, {{ $json.bronco_locked === 'locked' ? 'locked' : 'unlocked' }}. Phone at {{ $json.phone_battery }}% battery.\n\nCreate a natural, friendly morning briefing. Format for voice - be conversational, use contractions, no lists or bullets.",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "ollama-generate",
+      "name": "Ollama Generate Briefing",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "telegram-message",
+              "name": "telegram_message",
+              "value": "=🌅 **Good Morning!**\n\n🌡️ **Weather:** {{ $json.weather_temp }}°C now, high of {{ $json.weather_high }}°C. {{ $json.weather_condition }} with {{ $json.weather_precip }}% chance of precipitation.\n\n📅 **Calendar:** {{ $json.calendar_events || 'No meetings scheduled today' }}\n\n🏈 **Sports:**\n{{ $json.sports_news.split('\\n').map(item => '• ' + item).join('\\n') }}\n\n💻 **Tech:**\n{{ $json.tech_news.split('\\n').map(item => '• ' + item).join('\\n') }}\n\n🏠 **Smart Home:** Bronco at {{ $json.bronco_fuel }}% fuel, {{ $json.bronco_locked === 'locked' ? 'locked' : 'unlocked' }}. Phone at {{ $json.phone_battery }}% battery.\n\nHave a great day! ☕",
+              "type": "string"
+            },
+            {
+              "id": "voice-message",
+              "name": "voice_message",
+              "value": "={{ $('Ollama Generate Briefing').item.json.response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-outputs",
+      "name": "Format Outputs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "6299872789",
+        "text": "={{ $json.telegram_message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "send-telegram",
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [1850, 250],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-bot-credentials",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://homeassistant:8123/api/services/script/announce_morning_briefing",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.voice_message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "trigger-ha-tts",
+      "name": "Trigger HA TTS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1850, 350]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Weather",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Calendar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Bronco Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Bronco Lock",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Bedroom Fan",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Phone Battery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bronco Status": {
+      "main": [
+        [
+          {
+            "node": "Merge Smart Home Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bronco Lock": {
+      "main": [
+        [
+          {
+            "node": "Merge Smart Home Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bedroom Fan": {
+      "main": [
+        [
+          {
+            "node": "Merge Smart Home Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Phone Battery": {
+      "main": [
+        [
+          {
+            "node": "Merge Smart Home Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weather": {
+      "main": [
+        [
+          {
+            "node": "Merge All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Calendar": {
+      "main": [
+        [
+          {
+            "node": "Merge All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Smart Home Data": {
+      "main": [
+        [
+          {
+            "node": "Merge All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Data": {
+      "main": [
+        [
+          {
+            "node": "Ollama Generate Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Generate Briefing": {
+      "main": [
+        [
+          {
+            "node": "Format Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Outputs": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trigger HA TTS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger HA TTS": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

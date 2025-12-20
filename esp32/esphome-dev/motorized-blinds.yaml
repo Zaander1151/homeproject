@@ -1,0 +1,98 @@
+substitutions:
+  device_name: motorized-blinds
+  friendly_name: "Motorized Blinds"
+  
+  # Stepper Motor Driver Pins (TMC2208)
+  # IMPORTANT: Replace these with the actual GPIO pins you connect to.
+  step_pin: GPIO12
+  dir_pin: GPIO14
+  enable_pin: GPIO27
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  platform: ESP32
+  board: esp32dev
+
+wifi:
+  # Add your WiFi credentials to your secrets.yaml file
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  manual_ip:
+    static_ip: 192.168.40.150 # Example IP, change as needed
+    gateway: 192.168.40.1
+    subnet: 255.255.255.0
+
+# Enable native API for Home Assistant integration
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  password: !secret ota_password
+
+# UART is required for TMC2208 drivers to set current and other advanced features.
+# If you are not using UART, you can remove this section.
+# uart:
+#   tx_pin: GPIO17
+#   rx_pin: GPIO16
+#   baud_rate: 115200
+
+stepper:
+  - platform: tmc2208
+    id: blinds_stepper
+    step_pin: ${step_pin}
+    dir_pin: ${dir_pin}
+    # The enable_pin is optional but recommended. It de-energizes the motor when not moving.
+    enable_pin:
+      number: ${enable_pin}
+      inverted: false # Set to true if your driver enables on LOW
+    
+    # Set the current based on your NEMA 17 motor's rating (in Amps).
+    # Start low and increase if the motor stalls. 0.8A is a safe starting point.
+    current: 0.8
+    
+    # Stall detection is used for calibration.
+    # Adjust this value based on testing. Higher means less sensitive.
+    stall_threshold: 100 
+
+cover:
+  - platform: stepper
+    name: "${friendly_name}"
+    id: blinds_cover
+    stepper_id: blinds_stepper
+    
+    # These values will be determined automatically during calibration.
+    # You can leave them commented out or set them manually after finding them.
+    # max_value: 20000 # Example: number of steps for fully open
+
+    # Actions for Home Assistant buttons
+    open_action:
+      - stepper.set_target:
+          id: blinds_stepper
+          target: !lambda return id(blinds_cover).max_value;
+    close_action:
+      - stepper.set_target:
+          id: blinds_stepper
+          target: 0
+    stop_action:
+      - stepper.stop: blinds_stepper
+
+    # This is the magic for calibration.
+    # When the motor hits the end and stalls, it sets that position as the limit.
+    has_stalled:
+      # When closing, if it stalls, set the current position to 0 (fully closed).
+      on_close:
+        - stepper.set_position:
+            id: blinds_stepper
+            position: 0
+      # When opening, if it stalls, set the current position as the max_value (fully open).
+      on_open:
+        - lambda: |-
+            id(blinds_cover).max_value = id(blinds_stepper).current_position;
+
+    # Allows Home Assistant to move the blinds to a specific position (e.g., 50%).
+    position_action:
+      - stepper.set_target:
+          id: blinds_stepper
+          target: !lambda return round(x * id(blinds_cover).max_value);

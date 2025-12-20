@@ -1,0 +1,89 @@
+site_name: Home Automation Project Documentation
+site_description: Documentation for home automation infrastructure and projects
+docs_dir: docs-web
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Setup Guides:
+      - Voice Movie Requests: voice-movie-requests-setup.md
+      - Storage Monitoring Quick Start: storage-monitoring-quick-start.md
+      - Storage Monitoring Setup: storage-monitoring-setup.md
+      - Fix Atom Echo Voice Assistant: fix-atom-echo-voice-assistant.md
+      - Roku Voice Commands: roku-voice-commands.md
+      - Wake Word Options: wake-word-options.md
+  - ESP32 Projects:
+      - ESP32 Starter Projects: esp32-starter-projects.md
+      - Wiring Standards & Color Codes: esp32-wiring-standards.md
+      - Component Inventory: component-inventory.md
+      - ESPHome Development with VS Code: esphome-vscode-setup.md
+      - Soldering Projects:
+          - "Bedside Button Panel": projects/bedside-button-panel.md
+      - Project Guides (Beginner):
+          - "1. Blink LED": projects/01-blink-led.md
+          - "2. Temperature & Humidity": projects/02-temperature-humidity.md
+          - "3. Smart Lamp": projects/03-smart-lamp.md
+          - "4. Presence Detection": projects/04-presence-detection.md
+      - Project Guides (Intermediate):
+          - "5. Environmental Station": projects/05-environmental-station.md
+          - "6. Smart Plant Monitor": projects/06-smart-plant-monitor.md
+          - "7. Motion-Activated Light": projects/07-motion-light.md
+          - "8. Multi-Room Temperature": projects/08-multi-room-temp.md
+      - Project Guides (Advanced):
+          - "9. RGB Mood Lighting": projects/09-rgb-mood-lighting.md
+          - "10. Voice-Controlled Device": projects/10-voice-controlled-device.md
+          - "11. Energy Monitoring": projects/11-energy-monitoring.md
+          - "12. Custom HVAC Controller": projects/12-custom-hvac-controller.md
+          - "13. Outdoor Weather Station": projects/13-outdoor-weather-station.md
+          - "14-18. Integration Projects": projects/13-18-advanced-guides.md
+      - Featured Builds:
+          - "Voice Satellite with LED Ring": projects/voice-satellite-led-ring.md
+          - "ESP32-CAM Security System": projects/esp32-cam-security-case.md
+          - "Xiao ESP32-C6 Climate Display": projects/xiao-c6-climate-display.md
+      - Future Voice Projects: future-voice-projects.md
+      - Electronics Workbench - Complete Guide: electronics-workbench-complete-guide.md
+      - Beginner Safety Guide: beginner-safety-guide.md
+  - Home Assistant:
+      - Integrations: home-assistant-integrations.md
+      - Entities Reference: home-assistant-entities.md
+      - Expose Entities to Malory: expose-entities-to-malory.md
+      - Automation Recommendations: automation-recommendations.md
+  - Network:
+      - Network Topology: network-topology.md
+      - Network Device Map: network-device-map.md
+      - Device Identification: device-identification-analysis.md
+  - AI & Automation:
+      - Future Agent Systems: future-agents.md
+      - Ollama Model Recommendations: ollama-model-recommendations.md
+  - Configuration:
+      - Claude Code Guide: CLAUDE.md
+      - Gemini Guide: GEMINI.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: true
+  - tables
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search

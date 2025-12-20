@@ -1,0 +1,475 @@
+{
+  "name": "Smart Media Request with AI Parsing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "media-request",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Media Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "media-request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"received\", \"request\": $json.request_text } }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.40.201:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "llama3.2:latest"
+            },
+            {
+              "name": "prompt",
+              "value": "=You are a media title extractor with knowledge of popular movies and TV shows. Extract the title and determine if it's a movie or TV show.\n\nUser request: \"{{ $json.request_text }}\"\n\nRules:\n1. Extract the exact title from the request\n2. Remove words like \"request\", \"the movie\", \"the show\", \"season\", \"episode\"\n3. Preserve proper capitalization\n4. Use your knowledge to determine media type:\n   - If you KNOW it's a TV series/show, set \"tv\"\n   - If you KNOW it's a movie, set \"movie\"\n   - If mentions \"season\" or \"episode\", it's \"tv\"\n   - If completely unknown and no season/episode mentioned, guess \"movie\"\n\nCommon TV shows: Breaking Bad, Game of Thrones, Stranger Things, The Office, Friends, Severance, Silo, The Last of Us, The Boys, Fallout, 3 Body Problem, Westworld, Black Mirror\n\nCommon movies: The Matrix, Inception, Interstellar, The Dark Knight, Avatar, Dune\n\nRespond with ONLY valid JSON:\n{\"media_type\": \"movie or tv\", \"title\": \"Exact Title\"}\n\nExamples:\n\"Request The Matrix\" -> {\"media_type\": \"movie\", \"title\": \"The Matrix\"}\n\"request severance\" -> {\"media_type\": \"tv\", \"title\": \"Severance\"}\n\"request stranger things\" -> {\"media_type\": \"tv\", \"title\": \"Stranger Things\"}\n\"request breaking bad season 1\" -> {\"media_type\": \"tv\", \"title\": \"Breaking Bad\"}\n\"request fallout\" -> {\"media_type\": \"tv\", \"title\": \"Fallout\"}\n\nNow extract from: \"{{ $json.request_text }}\"\nJSON:"
+            },
+            {
+              "name": "stream",
+              "value": false
+            },
+            {
+              "name": "temperature",
+              "value": "0.1"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "parse-with-ollama",
+      "name": "Parse Request with Ollama",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract JSON from Ollama response\nconst ollamaResponse = $input.item.json.response;\nlet parsed;\n\ntry {\n  // Try to find JSON in the response\n  const jsonMatch = ollamaResponse.match(/\\{[^}]+\\}/);\n  if (jsonMatch) {\n    parsed = JSON.parse(jsonMatch[0]);\n  } else {\n    // Fallback: try to parse as-is\n    parsed = JSON.parse(ollamaResponse);\n  }\n} catch (e) {\n  // If parsing fails, extract manually\n  const titleMatch = $input.item.json.request_text.match(/request\\s+(?:the\\s+)?(?:movie\\s+)?(.+)/i);\n  parsed = {\n    media_type: \"movie\",\n    title: titleMatch ? titleMatch[1].trim() : $input.item.json.request_text\n  };\n}\n\nreturn {\n  media_type: parsed.media_type || \"movie\",\n  title: parsed.title,\n  chat_id: $input.item.json.chat_id,\n  original_request: $input.item.json.request_text\n};"
+      },
+      "id": "extract-parsed-data",
+      "name": "Extract Parsed Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://192.168.40.201:5055/api/v1/search?query={{ encodeURIComponent($json.title) }}&page=1&language=en",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "MTc2NDQ1NjgzNjIzNzdhODg0Nzg2LTg1NDEtNGUzZi05ZWIyLTlkOWYxOTYzNGI4OQ=="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "search-overseerr",
+      "name": "Search Overseerr",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "check-results",
+              "leftValue": "={{ $json.results.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-if-found",
+      "name": "Check if Found",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ai-select-best-result",
+      "name": "AI - Select Best Result",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1560, 200],
+      "notes": "AI agent analyzes search results and user intent to select the most appropriate media item"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the AI-selected result or fall back to first result\nconst results = $('Search Overseerr').item.json.results;\nconst requestedType = $('Extract Parsed Data').item.json.media_type;\n\n// Try to get AI-selected media ID from previous node\nlet selectedMedia;\nif ($input.item.json.selectedId) {\n  // AI selected a specific result\n  selectedMedia = results.find(r => r.id === $input.item.json.selectedId);\n}\n\n// Fallback: Find first match of requested type or just use first result\nif (!selectedMedia) {\n  selectedMedia = results.find(r => r.mediaType === requestedType) || results[0];\n}\n\nconst mediaData = {\n  tmdbId: selectedMedia.id,\n  mediaType: selectedMedia.mediaType,\n  title: selectedMedia.title || selectedMedia.name,\n  year: selectedMedia.releaseDate ? new Date(selectedMedia.releaseDate).getFullYear() : (selectedMedia.firstAirDate ? new Date(selectedMedia.firstAirDate).getFullYear() : 'Unknown'),\n  overview: selectedMedia.overview || 'No description available',\n  posterPath: selectedMedia.posterPath ? `https://image.tmdb.org/t/p/w500${selectedMedia.posterPath}` : null,\n  originalQuery: $('Extract Parsed Data').item.json.original_request,\n  status: selectedMedia.mediaInfo?.status || 'unknown',\n  chat_id: $('Extract Parsed Data').item.json.chat_id\n};\n\nreturn mediaData;"
+      },
+      "id": "format-media-data",
+      "name": "Format Media Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "6299872789",
+        "text": "={{ $json.mediaType === 'tv' ? '📺' : '🎬' }} *{{ $json.mediaType === 'tv' ? 'TV Show' : 'Movie' }} Request*\n\n*{{ $json.title }}* ({{ $json.year }})\n\n{{ $json.overview }}\n\n📊 Status: {{ $json.status === 'available' ? '✅ Already Available' : $json.status === 'pending' ? '⏳ Already Requested' : '❓ Not Requested' }}\n\nDo you want to request this?",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Confirm Request",
+                    "callbackData": "=confirm_{{ $json.tmdbId }}_{{ $json.mediaType }}"
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "callbackData": "cancel_request"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-telegram-confirmation",
+      "name": "Send Telegram Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2000, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6299872789",
+        "text": "=❌ No media found for: *{{ $('Extract Parsed Data').item.json.title }}*\n\nTry a different search term.",
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-not-found",
+      "name": "Send Not Found",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1560, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ]
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram - Button Press",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 600],
+      "webhookId": "telegram-callback-media",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-confirm",
+              "leftValue": "={{ $json.callback_query.data }}",
+              "rightValue": "=confirm_",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-callback",
+      "name": "Check Callback",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract TMDB ID and media type from callback data\nconst callbackData = $input.item.json.callback_query.data;\n// Remove the = prefix and confirm_ prefix\nconst cleanData = callbackData.replace(/^=/, '').replace('confirm_', '');\nconst parts = cleanData.split('_');\nconst tmdbId = parseInt(parts[0]);\nconst mediaType = parts[1] || 'movie';\nconst chatId = $input.item.json.callback_query.message.chat.id;\nconst messageId = $input.item.json.callback_query.message.message_id;\n\nreturn {\n  tmdbId: tmdbId,\n  mediaType: mediaType,\n  chatId: chatId,\n  messageId: messageId\n};"
+      },
+      "id": "extract-callback-data",
+      "name": "Extract Callback Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.40.201:5055/api/v1/request",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "MTc2NDQ1NjgzNjIzNzdhODg0Nzg2LTg1NDEtNGUzZi05ZWIyLTlkOWYxOTYzNGI4OQ=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"mediaType\": $json.mediaType, \"mediaId\": $json.tmdbId } }}",
+        "options": {}
+      },
+      "id": "request-media",
+      "name": "Request via Overseerr",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "messageType": "editMessageText",
+        "messageId": "={{ $json.messageId }}",
+        "text": "✅ *Request Successful!*\n\nYour media has been added to the queue. You'll be notified when it's ready.",
+        "additionalFields": {
+          "parseMode": "Markdown"
+        }
+      },
+      "id": "send-success",
+      "name": "Send Success",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1120, 500],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.callback_query.message.chat.id }}",
+        "messageType": "editMessageText",
+        "messageId": "={{ $json.callback_query.message.message_id }}",
+        "text": "❌ Request cancelled."
+      },
+      "id": "send-cancelled",
+      "name": "Send Cancelled",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [680, 700],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-hsnotifications",
+          "name": "hsnotifications"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - Media Request": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse Request with Ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Request with Ollama": {
+      "main": [
+        [
+          {
+            "node": "Extract Parsed Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Parsed Data": {
+      "main": [
+        [
+          {
+            "node": "Search Overseerr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Overseerr": {
+      "main": [
+        [
+          {
+            "node": "Check if Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Found": {
+      "main": [
+        [
+          {
+            "node": "AI - Select Best Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Select Best Result": {
+      "main": [
+        [
+          {
+            "node": "Format Media Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Media Data": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Button Press": {
+      "main": [
+        [
+          {
+            "node": "Check Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Callback": {
+      "main": [
+        [
+          {
+            "node": "Extract Callback Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Callback Data": {
+      "main": [
+        [
+          {
+            "node": "Request via Overseerr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request via Overseerr": {
+      "main": [
+        [
+          {
+            "node": "Send Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}
