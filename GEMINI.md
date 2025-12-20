@@ -1,5 +1,11 @@
 # GEMINI.md
 
+## ACTIVE PROJECT: XIAO C6 Climate Sensor
+**CRITICAL:** Before starting any work on environmental sensors, READ the following file for the proven hardware configuration, pin mappings, and current status:
+*   `docs-web/projects/xiao-c6-bme280-build.md`
+
+---
+
 This file provides guidance to the Gemini AI assistant when working within this repository.
 
 ## Directory Overview
