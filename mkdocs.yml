@@ -48,24 +48,35 @@ nav:
           - "13. Outdoor Weather Station": projects/13-outdoor-weather-station.md
           - "14-18. Integration Projects": projects/13-18-advanced-guides.md
       - Featured Builds:
+          - "ESP32-S3 Multisensor": projects/esp32-s3-multisensor.md
+          - "Kitchen Under-Cabinet Lighting": projects/kitchen-under-cabinet-lighting.md
           - "Voice Satellite with LED Ring": projects/voice-satellite-led-ring.md
           - "ESP32-CAM Security System": projects/esp32-cam-security-case.md
           - "Xiao ESP32-C6 Climate Display": projects/xiao-c6-climate-display.md
+          - "XIAO C6 RGB Strip Test": projects/xiao-c6-rgb-strip-test.md
+          - "XIAO C6 LED Strip Controller": projects/xiao-c6-led-strip-controller.md
+          - "Bed Ambient Lighting": projects/bed-ambient-lighting.md
+          - "Barbell Lift Tracker (Future)": projects/barbell-lift-tracker.md
       - Future Voice Projects: future-voice-projects.md
       - Electronics Workbench - Complete Guide: electronics-workbench-complete-guide.md
       - Beginner Safety Guide: beginner-safety-guide.md
+      - PETG LED Diffuser Print Settings: petg-led-diffuser-print-settings.md
   - Home Assistant:
       - Integrations: home-assistant-integrations.md
       - Entities Reference: home-assistant-entities.md
       - Expose Entities to Malory: expose-entities-to-malory.md
       - Automation Recommendations: automation-recommendations.md
+      - Health & Fitness Tracking: health-fitness-tracking.md
   - Network:
       - Network Topology: network-topology.md
       - Network Device Map: network-device-map.md
       - Device Identification: device-identification-analysis.md
+      - Ubiquiti Migration Guide: ubiquiti-migration-guide.md
   - AI & Automation:
       - Future Agent Systems: future-agents.md
       - Ollama Model Recommendations: ollama-model-recommendations.md
+  - Troubleshooting:
+      - Lessons Learned: troubleshooting-lessons-learned.md
   - Configuration:
       - Claude Code Guide: CLAUDE.md
       - Gemini Guide: GEMINI.md

@@ -97,69 +97,44 @@ This is a comprehensive home automation and smart home infrastructure project bu
 
 ---
 
-### ESP32 Project Documentation - NEEDS COMPLETION
+### Ubiquiti Network Migration - PRE-MIGRATION IN PROGRESS
 
-**Status:** Projects 1-13 ✅ COMPLETE | Projects 14-18 ⚠️ NEED INDIVIDUAL GUIDES
+**Status:** Pre-migration checklist ⏳ IN PROGRESS | Hardware verification pending
 
-**What's Done:**
-- ✅ Projects 1-8: Complete comprehensive guides (Beginner & Intermediate)
-- ✅ Projects 9-13: Complete comprehensive guides (Advanced)
-  - Project 9: RGB Mood Lighting System
-  - Project 10: Voice-Controlled Device
-  - Project 11: Energy Monitoring System
-  - Project 12: Custom HVAC Controller
-  - Project 13: Outdoor Weather Station
-- ✅ Featured Build: Voice Satellite with LED Ring (comprehensive guide)
-- ✅ Projects 14-18: Combined reference guide (`13-18-advanced-guides.md`)
+**Migration Plan:** Transition from single flat network (192.168.40.0/24) to VLAN-segmented Ubiquiti infrastructure
 
-**What Needs to be Done:**
-Create individual comprehensive guides for Projects 14-18 following the same detailed format as Projects 1-13:
+**Progress So Far:**
+- ✅ **Task 1 Complete:** Ubiquiti account exists at unifi.ui.com
+- ✅ **Task 2 Complete:** UniFi Network mobile app installed and logged in (Pixel 10 Pro)
+- ⏳ **Task 3 NEXT:** Hardware verification (UCG-Ultra, Lite-8 PoE, U6+ AP)
 
-1. **Project 14: Mailbox Notification System**
-   - Ultra-low power design (deep sleep)
-   - Magnetic reed switch door sensor
-   - Solar charging with battery backup
-   - Wake-on-door-open functionality
+**What Needs to be Done Next Session:**
 
-2. **Project 15: ESP32-CAM Security Camera**
-   - ESP32-CAM module setup
-   - Motion-triggered recording
-   - Frigate NVR integration
-   - RTSP streaming configuration
+**Immediate Next Step - Task 3: Hardware Verification**
+- Confirm Cloud Gateway Ultra (UCG-Ultra) is unboxed with power adapter
+- Confirm Switch Lite 8 PoE (USW-Lite-8-PoE) is unboxed with power adapter
+- Confirm U6+ Access Point is unboxed (powered via PoE, no separate adapter needed)
 
-3. **Project 16: Bathroom Automation Hub (Integration Project)**
-   - DHT22 humidity sensor
-   - PIR motion sensor
-   - Exhaust fan relay control
-   - LED strip lighting with nightlight mode
+**Remaining Pre-Migration Tasks (1 Week Before):**
+- [ ] Gather Cat6 patch cables (~8 cables needed for SME closet)
+- [ ] Verify mounts for UCG-Ultra and Lite-8 are ready
+- [ ] Print migration guide for offline reference
+- [ ] Schedule migration window (weekend, 2-4 hour block)
 
-4. **Project 17: Workshop Environmental Control (Integration Project)**
-   - BME680 air quality sensor
-   - VOC-based ventilation control
-   - Space heater with safety timeout
-   - Door/window sensors
+**Remaining Pre-Migration Tasks (1 Day Before):**
+- [ ] Backup Home Assistant configurations
+- [ ] Backup all Docker configurations (n8n, Ollama, media stack)
+- [ ] Document current network configuration (IP settings, routes)
+- [ ] Photo current ISP router connections
+- [ ] Test current network baseline (ping tests, HA access, voice assistants)
+- [ ] Verify all Docker containers running
 
-5. **Project 18: Aquarium/Terrarium Controller (Integration Project)**
-   - DS18B20 waterproof temperature probe
-   - Heater control with thermostat entity
-   - LED lighting with circadian rhythm
-   - Water level monitoring (ultrasonic)
+**Reference Guide:** `/home/hazzard/homeproject/docs-web/ubiquiti-migration-guide.md`
 
-**Each guide should include:**
-- Complete parts list with Canadian pricing
-- Detailed component explanations
-- Wiring diagrams (ASCII art)
-- Full ESPHome configuration with inline comments
-- Step-by-step build instructions
-- Troubleshooting section
-- Advanced customizations
-- Home Assistant integration examples
-
-**Current Status:**
-- All projects have working code in combined guide
-- Need to expand each into 800-1000 line comprehensive format
-- Navigation already updated in mkdocs.yml
-- Documentation site: http://192.168.40.201:8888
+**Session Notes:**
+- User paused at Task 3 (hardware verification)
+- Will resume in a couple hours
+- Walking through pre-migration checklist one task at a time
 
 ---
 
@@ -213,6 +188,102 @@ Create individual comprehensive guides for Projects 14-18 following the same det
 - Quick start: `/mnt/storage/automation/n8n/MORNING-BRIEFING-SUMMARY.md`
 - Full guide: `/mnt/storage/automation/n8n/morning-briefing-setup-guide.md`
 - System docs: `/home/hazzard/homeproject/docs/morning-briefing-automation.md`
+
+---
+
+### Health & Fitness Dashboard Setup - READY TO CONFIGURE
+
+**Status:** All files created ✅ | Setup pending ⏳ - Walk through step-by-step next session
+
+**What's Done:**
+- ✅ Complete voice-activated food & workout tracking system designed
+- ✅ Home Assistant configuration files created (packages, intents, custom sentences)
+- ✅ n8n workflows created (food logging + workout logging with AI protein estimation)
+- ✅ Comprehensive health dashboard YAML created (graphs, charts, status cards)
+- ✅ Integration guides for Withings scale + Google Fit/Health Connect blood pressure
+- ✅ 12-week Stronglifts 5X5 workout plan generated
+- ✅ All documentation completed and added to web docs
+
+**What Needs to be Done Next Session:**
+
+**IMPORTANT:** User requested to walk through the step-by-step setup guide in next session.
+
+**Session Plan:**
+1. **Review Dashboard Features** (~5 min)
+   - Show what the dashboard will look like
+   - Explain all graphs and metrics
+   - Review data sources (voice, Withings, Health Connect)
+
+2. **Install Dashboard Dependencies** (~15 min)
+   - Install ApexCharts Card via HACS
+   - Install Mushroom Cards via HACS
+   - Restart Home Assistant
+   - Verify installations
+
+3. **Add Health Dashboard to Home Assistant** (~10 min)
+   - Create new dashboard view
+   - Copy YAML configuration
+   - Test dashboard loads
+
+4. **Configure Withings Scale Integration** (~30 min)
+   - Create Withings developer account
+   - Get API credentials (Client ID + Secret)
+   - Add Withings integration in Home Assistant
+   - Authorize and test weight sync
+
+5. **Configure Health Connect for Blood Pressure** (~20 min)
+   - Install Health Connect app on Pixel 10 Pro
+   - Grant permissions to blood pressure app
+   - Enable sensors in HA Companion App
+   - Test blood pressure data sync
+
+6. **Customize Dashboard** (~15 min)
+   - Update protein goal annotations
+   - Adjust blood pressure thresholds
+   - Verify all sensors populating data
+   - Test voice commands integration
+
+7. **Test Complete System** (~10 min)
+   - Voice: "I ate chicken breast"
+   - Voice: "I completed squat at 135 pounds"
+   - Check dashboard updates
+   - Verify graphs populate
+
+**Total Time Estimate:** 90-120 minutes
+
+**Files Ready for Setup:**
+- Dashboard YAML: `/home/hazzard/home-assistant/config/dashboards/health_fitness_dashboard.yaml`
+- HA Packages: `/home/hazzard/home-assistant/config/packages/health_fitness_tracking.yaml`
+- Custom Sentences: `/home/hazzard/home-assistant/config/custom_sentences/en/health_fitness.yaml`
+- Intent Handlers: `/home/hazzard/home-assistant/config/configuration_health_intents.yaml`
+- n8n Food Logging: `/mnt/storage/automation/n8n/food-logging-workflow.json`
+- n8n Workout Logging: `/mnt/storage/automation/n8n/workout-logging-workflow.json`
+
+**Documentation:**
+- **Main Setup Guide:** `/mnt/storage/automation/n8n/HEALTH-FITNESS-TRACKING-SETUP.md`
+- **Withings/Health Connect Guide:** `/mnt/storage/automation/n8n/WITHINGS-GOOGLE-FIT-SETUP.md`
+- **Dashboard Summary:** `/mnt/storage/automation/n8n/HEALTH-DASHBOARD-SUMMARY.md`
+- **12-Week Workout Plan:** `/mnt/storage/automation/n8n/STRONGLIFTS-5X5-WORKOUT-PLAN.md`
+- **Quick Reference Card:** `/mnt/storage/automation/n8n/HEALTH-TRACKING-QUICK-REFERENCE.md`
+- **Web Docs:** http://192.168.40.201:8888/health-fitness-tracking/
+
+**System Features:**
+- 🎤 Voice-activated food/workout logging (existing M5Stack Atom Echo)
+- 🤖 AI protein estimation (Ollama qwen2.5:7b)
+- ⚖️ Automatic weight tracking (Withings scale integration)
+- ❤️ Blood pressure monitoring (Health Connect via Pixel 10 Pro)
+- 📊 Beautiful dashboard with 30/60/90-day trend graphs
+- 📱 Telegram notifications for all logs
+- 💪 Stronglifts 5X5 progression tracking (auto-calculates next weights)
+- 🎯 Smart reminders (workout days, low protein, high blood pressure alerts)
+
+**Prerequisites for Session:**
+- ✅ Withings account credentials ready
+- ✅ Google Fit/Health Connect app on Pixel 10 Pro
+- ✅ Blood pressure cuff syncing to Google Fit
+- ⏳ ~2 hours available for setup
+- ⏳ Access to http://192.168.40.201:8123 (Home Assistant)
+- ⏳ Access to http://192.168.40.201:5678 (n8n)
 
 ---
 

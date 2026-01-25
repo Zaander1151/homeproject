@@ -14,86 +14,121 @@ This is a comprehensive home automation and smart home infrastructure project bu
 
 ## 🔴 PENDING TASKS FOR NEXT SESSION
 
-### Voice Satellite LED Ring - TROUBLESHOOTING IN PROGRESS
+### Voice Satellite Project - NEXT SESSION PLAN
 
-**Status:** Hardware assembled, firmware flashed ✅ | LED test ⚠️ POWER ISSUE - Needs diagnosis
+**Root Cause Found:** On-device wake word (`micro_wake_word`) keeps the microphone running 24/7, holding the I2S bus. When TTS tries to play, the speaker can't access the bus → static audio. Confirmed by flashing prototype with wake word enabled - same static appeared.
 
-**Current Setup:**
-- **Device:** ESP32-S3 DevKit at 192.168.40.180
-- **Configuration:** `/home/hazzard/home-assistant/esphome/led-ring-test.yaml` (flashed successfully)
-- **LED Ring:** 12x WS2812B NeoPixels on GPIO8
-- **Power:** Currently using 5V wall adapter
-- **Capacitance:** 1000µF total (multiple capacitors in parallel)
+---
 
-**Problem:**
-- ✅ All 12 LEDs light up
-- ❌ LEDs are unstable/flickering
-- ❌ Blue channel very dim
-- ❌ White displays as red/yellow (blue not working properly)
-- ❌ Voltage at LED ring measures only **2.2V** (should be 4.8-5.2V)
-- ❌ Same 2.2V reading on both USB power AND 5V wall adapter (suggests circuit problem, not just power supply)
+#### Bathroom Voice (192.168.40.123) - SHELVED
 
-**RGB Order Test Results:**
-- `GRB` (original): Colors OK, blue dim, white = red
-- `RGB`: Red/Green swapped, blue OK, white = red
-- `RBG`: Green = green, red = green, blue = red, white = red
-- **Conclusion:** Original `GRB` was correct
+**Status:** Built into enclosure, cannot rewire without destroying hardware
+
+**Decision:** Shelve for now. Rewiring would destroy enclosure and components.
+
+**Config:** `/home/hazzard/home-assistant/esphome/bathroom-voice.yaml`
+
+---
+
+#### Voice Satellite Prototype (192.168.40.198) - I2S CONFIG ISSUE
+
+**Status:** Hardware verified working, I2S config issue preventing audio playback
+
+**Config:** `/home/hazzard/home-assistant/esphome/esp32-wroom-test.yaml`
+
+**Current Wiring (VERIFIED WORKING):**
+- Mic: LRCLK=GPIO22, BCLK=GPIO26, DIN=GPIO32
+- Speaker: LRCLK=GPIO22, BCLK=GPIO26, DOUT=GPIO27 (shared bus)
+- Touch Button: GPIO13 (TTP223)
+- LED Ring: GPIO4 (12x WS2812)
+
+**What Works:**
+- ✅ Touch button triggers voice assistant
+- ✅ Full voice pipeline: Listening → Processing → Responding → Playing → Idle
+- ✅ Speaker hardware works (squealing on separate I2S bus proves amp/speaker function)
+- ✅ Mic works (speech recognition succeeds)
+- ✅ Device is stable in button-triggered mode (no wake word)
+
+**What Doesn't Work:**
+- ❌ No audio output during "Playing" state
+- ❌ I2S audio data not being transmitted to speaker
+
+**Tested Configurations:**
+1. Separate I2S buses (GPIO18/19 for speaker) → Squealing on LED changes, no audio during playback
+2. Shared I2S bus (GPIO22/26) → Complete silence during playback
+3. channel: stereo, mono, left → All silent
+4. micro_wake_word enabled → Device crashes/unstable
+5. Continuous streaming → Device unstable
+6. Button-triggered → Stable but no audio
+
+**Next Session - CONFIG FIXES TO TRY:**
+1. Compare EXACT speaker settings with working M5Stack Atom Echo config
+2. Try `channel: stereo` (Atom Echo uses this, notes say mono has poor quality)
+3. Check if there's an I2S mode/format setting needed
+4. Test the RTTTL tone (hold button 3+ sec) to isolate speaker output
+5. Check if media_player needs different settings
+
+**DO NOT waste time on:**
+- Wiring checks (hardware verified working)
+- Power supply (device is stable)
+- Network issues (pipeline works perfectly)
+
+**Reference - Working M5Stack Atom Echo speaker config:**
+```yaml
+speaker:
+  - platform: i2s_audio
+    id: echo_speaker
+    i2s_audio_id: i2s_audio_bus
+    i2s_dout_pin: GPIO22
+    dac_type: external
+    bits_per_sample: 16bit
+    sample_rate: 16000
+    channel: stereo  # NOTE: Echo has poor playback with mono
+    buffer_duration: 60ms
+```
+
+**Key Difference:** Atom Echo uses single I2S bus for both mic and speaker, with `channel: stereo` for speaker.
+
+---
+
+### Ubiquiti Network Migration - PRE-MIGRATION IN PROGRESS
+
+**Status:** Pre-migration checklist ⏳ IN PROGRESS | Hardware verification pending
+
+**Migration Plan:** Transition from single flat network (192.168.40.0/24) to VLAN-segmented Ubiquiti infrastructure
+
+**Progress So Far:**
+- ✅ **Task 1 Complete:** Ubiquiti account exists at unifi.ui.com
+- ✅ **Task 2 Complete:** UniFi Network mobile app installed and logged in (Pixel 10 Pro)
+- ⏳ **Task 3 NEXT:** Hardware verification (UCG-Ultra, Lite-8 PoE, U6+ AP)
 
 **What Needs to be Done Next Session:**
 
-1. **Diagnose Why Voltage is Only 2.2V:**
+**Immediate Next Step - Task 3: Hardware Verification**
+- Confirm Cloud Gateway Ultra (UCG-Ultra) is unboxed with power adapter
+- Confirm Switch Lite 8 PoE (USW-Lite-8-PoE) is unboxed with power adapter
+- Confirm U6+ Access Point is unboxed (powered via PoE, no separate adapter needed)
 
-   **Test A: Check for Short Circuit**
-   - Power OFF everything
-   - Multimeter to Ω (Ohms) mode, 200Ω range
-   - Use jumper wires inserted into breadboard rails to test:
-     - Red probe → 5V rail (via jumper wire)
-     - Black probe → GND rail (via jumper wire)
-   - **Expected:** "OL" or very high resistance (no short)
-   - **Problem if:** 0-100Ω (short circuit - find and fix)
+**Remaining Pre-Migration Tasks (1 Week Before):**
+- [ ] Gather Cat6 patch cables (~8 cables needed for SME closet)
+- [ ] Verify mounts for UCG-Ultra and Lite-8 are ready
+- [ ] Print migration guide for offline reference
+- [ ] Schedule migration window (weekend, 2-4 hour block)
 
-   **Test B: Measure Wall Adapter Output Directly**
-   - Disconnect adapter from circuit
-   - Probe USB connector pins or use USB breakout
-   - **Expected:** 5.0-5.2V
-   - **Problem if:** Less than 4.8V (bad adapter)
+**Remaining Pre-Migration Tasks (1 Day Before):**
+- [ ] Backup Home Assistant configurations
+- [ ] Backup all Docker configurations (n8n, Ollama, media stack)
+- [ ] Document current network configuration (IP settings, routes)
+- [ ] Photo current ISP router connections
+- [ ] Test current network baseline (ping tests, HA access, voice assistants)
+- [ ] Verify all Docker containers running
 
-   **Test C: Check Capacitor Polarity**
-   - Verify all capacitors have:
-     - **+ (positive, longer leg)** → Connected to 5V
-     - **- (negative, shorter leg, marked stripe)** → Connected to GND
-   - If backwards, this could cause the voltage drop
+**Reference Guide:** `/home/hazzard/homeproject/docs-web/ubiquiti-migration-guide.md`
 
-   **Test D: Inspect for Wiring Errors**
-   - Verify ESP32-S3 connections:
-     - GPIO8 → 470Ω resistor → LED DIN
-     - 5V rail → LED ring 5V
-     - GND rail → LED ring GND
-   - Check for loose breadboard connections
-   - Look for accidental bridges between 5V and GND
-
-2. **If Short Circuit Found:**
-   - Disconnect components one by one to isolate the problem
-   - Check LED ring separately (power it without ESP32)
-   - Check capacitors separately
-
-3. **If No Short Found:**
-   - LED ring may be internally damaged
-   - Try a different NeoPixel strip/ring if available
-   - Consider adding a 74AHCT125 level shifter for data line (3.3V → 5V)
-
-4. **Once Fixed:**
-   - Re-test colors (should be correct with GRB order)
-   - Test Rainbow effect
-   - Verify all 12 LEDs work properly
-   - Move to Step 3: Test Audio (microphone + speaker)
-
-**Tools Needed:**
-- GDT-3190 Multimeter
-- Jumper wires for testing breadboard rails
-- Possibly replacement LED ring if current one is damaged
-
-**Reference Guide:** `/home/hazzard/homeproject/docs-web/projects/voice-satellite-led-ring.md` (Step 2: Test LED Ring, Troubleshooting section)
+**Session Notes:**
+- User paused at Task 3 (hardware verification)
+- Will resume in a couple hours
+- Walking through pre-migration checklist one task at a time
 
 ---
 
@@ -150,6 +185,118 @@ This is a comprehensive home automation and smart home infrastructure project bu
 
 ---
 
+### Health & Fitness Dashboard Setup - IN PROGRESS
+
+**Status:** Dashboard ✅ LIVE | n8n webhooks ✅ WORKING | Voice commands ❌ BROKEN
+
+**What's Completed:**
+- ✅ Home Assistant configuration updated (packages, intents, custom sentences)
+- ✅ ApexCharts Card installed via HACS
+- ✅ Mushroom Cards installed via HACS
+- ✅ Health dashboard added to Home Assistant (accessible in sidebar)
+- ✅ Health Connect sensors enabled on Pixel 10 Pro (blood pressure, heart rate, steps, sleep)
+- ✅ **Food Logging V1.5** - Webhook working perfectly (1 Telegram message, HA updates, valid JSON response)
+- ✅ **Workout Logging V1.14** - Webhook working perfectly (1 Telegram message, HA updates, valid JSON response, InfluxDB removed)
+- ✅ Telegram notifications configured
+- ✅ Home Assistant API credentials configured
+
+**Dashboard Status:**
+- **URL:** http://192.168.40.201:8123 → "Health & Fitness" in sidebar
+- **Working:** Protein tracking cards, workout weights, gauges
+- **Missing Data:** Blood pressure sensors show "unknown" (need BP reading to populate)
+- **Graphs:** Empty (need historical data to populate over time)
+
+---
+
+## 🔴 CRITICAL ISSUES - Voice Commands BROKEN
+
+### Issue #1: Food Logging Voice Command
+
+**Problem:** Voice command "I ate [food]" has multiple issues:
+- ❌ Not listing the food consumed in response
+- ❌ Making up protein numbers (not using Ollama AI estimation)
+- ⚠️ Webhook may not be triggered at all
+
+**Working:**
+- ✅ Webhook test: `curl -X POST http://192.168.40.201:5678/webhook/log-food -d '{"food_item": "protein shake", ...}'` works perfectly
+
+**Needs Investigation:**
+- Check if `LogFoodIntake` intent handler is calling `rest_command.log_food_intake` correctly
+- Verify food_item parameter is being passed
+- Check HA logs for rest_command errors
+
+---
+
+### Issue #2: Workout Logging Voice Command
+
+**Problem:** Voice command "I completed [exercise] at [weight] pounds" fails completely
+- ❌ Malory acknowledges but workflow doesn't execute
+- ❌ No webhook call to n8n
+- ❌ HA logs show 422 error: `"exercise": "", "weight": ,` (empty values!)
+
+**Root Cause Identified:**
+- Malory AI agent passes `name: "bench press at 95 pounds"` (single parameter)
+- Intent handler expects separate `exercise` and `weight` parameters
+- Configuration updated in `/home/hazzard/home-assistant/config/configuration_health_intents.yaml` to parse `name` parameter
+- **STATUS:** Fix applied but NOT TESTED YET
+
+**Fix Applied (Line 21-28):**
+```yaml
+LogWorkoutExercise:
+  speech:
+    text: "Logged {{ exercise or name.split(' at ')[0] }} at {{ weight or name.split(' at ')[1].split(' ')[0] }} pounds. Great work!"
+  action:
+    - service: rest_command.log_workout_exercise
+      data:
+        exercise: "{{ exercise or name.split(' at ')[0] }}"
+        weight: "{{ weight or (name.split(' at ')[1].split(' ')[0] if ' at ' in name else 0) }}"
+```
+
+**Needs Testing:**
+- Reload Home Assistant or restart
+- Test voice command: "Hey Nabu, I completed bench press at 100 pounds"
+- Verify n8n execution in http://192.168.40.201:5678 executions
+- Check Telegram notification received
+
+**Working:**
+- ✅ Webhook test: `curl -X POST http://192.168.40.201:5678/webhook/log-workout -d '{"exercise": "squat", "weight": 135, ...}'` works perfectly
+- ✅ Manual rest_command test works
+
+---
+
+## Next Session Priorities
+
+1. **Fix Food Logging Voice Command:**
+   - Investigate why food isn't being logged correctly
+   - Check LogFoodIntake intent handler
+   - Ensure AI estimation is being used (not random numbers)
+
+2. **Test Workout Logging Voice Command Fix:**
+   - Restart Home Assistant to apply intent_script changes
+   - Test voice command end-to-end
+   - May need to adjust parsing logic if format varies
+
+3. **Consider Alternative Approach:**
+   - If Malory AI agent continues to have issues with structured parameters
+   - May need to use pattern-based conversation engine for these specific intents
+   - Or create custom intent handler that accepts free-form text and parses it
+
+---
+
+**Files:**
+- **Food Logging:** `/mnt/storage/automation/n8n/food-logging-workflow_V1.5.json` ✅ WORKING
+- **Workout Logging:** `/mnt/storage/automation/n8n/workout-logging-workflow_V1.14.json` ✅ WORKING
+- **Intent Handlers:** `/home/hazzard/home-assistant/config/configuration_health_intents.yaml` ⚠️ MODIFIED (needs testing)
+- **Custom Sentences:** `/home/hazzard/home-assistant/config/custom_sentences/en/health_fitness.yaml`
+- **Dashboard:** `/home/hazzard/home-assistant/config/dashboards/health_fitness_dashboard_full.yaml`
+
+**Documentation:**
+- **Main Setup Guide:** `/mnt/storage/automation/n8n/HEALTH-FITNESS-TRACKING-SETUP.md`
+- **Dashboard Summary:** `/mnt/storage/automation/n8n/HEALTH-DASHBOARD-SUMMARY.md`
+- **Web Docs:** http://192.168.40.201:8888/health-fitness-tracking/
+
+---
+
 > **⚠️ CRITICAL: This is a HEADLESS Linux server with NO GUI or web browser access. NEVER suggest accessing web UIs via localhost URLs (http://localhost:*). The user accesses all web services remotely from other devices on the network using the server's IP address (192.168.40.201). All configuration must be done via CLI, APIs, or configuration files.**
 
 > **💾 CRITICAL FILE STORAGE: Any files that need to be retrieved/downloaded by the user (n8n workflows, exports, backups, etc.) MUST be stored in `/mnt/storage/` directory. This is accessible from the user's other devices. For n8n workflow JSON files specifically, use `/mnt/storage/automation/n8n/`. NEVER store user-retrievable files only in `/home/hazzard/homeproject/` as the user cannot easily access them from their workstation.**
@@ -157,6 +304,8 @@ This is a comprehensive home automation and smart home infrastructure project bu
 > **📋 Network Reference:** For all network-related tasks, troubleshooting, or device setup, consult [`docs/network-topology.md`](/home/hazzard/homeproject/docs/network-topology.md). This document contains the complete network map, device inventory, agent access patterns, and troubleshooting guides.
 
 > **📋 Home Assistant Entities Reference:** For questions about Home Assistant devices, entities, or available integrations, consult [`docs/home-assistant-entities.md`](/home/hazzard/homeproject/docs/home-assistant-entities.md). This document contains a complete list of all entities available in the Home Assistant instance.
+
+> **🔧 Hardware Troubleshooting:** Before diagnosing hardware issues, review [`docs-web/troubleshooting-lessons-learned.md`](/home/hazzard/homeproject/docs-web/troubleshooting-lessons-learned.md). Key principles: (1) Test components in isolation BEFORE recommending replacement/cutting, (2) Trace voltage systematically from source to load, (3) Check wiring continuity before blaming devices, (4) Document as you go using the format in that guide.
 
 ## Project Organization
 
@@ -270,8 +419,16 @@ The `docs-web/` directory is:
 ### ESP32 Devices
 
 **Deployed Devices:**
-- **Living Room Voice** (192.168.40.107) - M5Stack Atom Echo voice assistant
-- **Office Voice** - M5Stack Atom Echo voice assistant
+- **Living Room Voice** (192.168.40.120) - M5Stack Atom Echo voice assistant
+- **Office Voice** (192.168.40.121) - M5Stack Atom Echo voice assistant
+- **Bedroom Voice** (192.168.40.122) - M5Stack Atom Echo voice assistant
+- **Bathroom Voice** (192.168.40.123) - ESP32-WROOM voice satellite
+
+**Test/Development Boards (RESERVED - Never deploy to production):**
+- **ESP32-WROOM Test Board** (192.168.40.198) - Permanent test board for prototyping
+- **XIAO ESP32-C6 Test Board** (192.168.40.199) - Permanent test board for prototyping
+
+> ⚠️ **IMPORTANT:** IPs `.198` and `.199` are ALWAYS reserved for testing. These boards should never be deployed to production. All new firmware/features should be tested here first.
 
 **Available Hardware:**
 - 1 x M5Stack Atom Echo (for additional voice assistant)
