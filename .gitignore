@@ -2,6 +2,18 @@
 .env
 *.env
 secrets.yaml
+**/secrets.yaml
+updated_secrets_for_esphome.yaml
+
+# ESPHome configs (contain network info, device structure)
+xiao-c6-*.yaml
+esp32/esphome-dev/
+
+# External documentation (not ours)
+freenove_docs/
+Board.jpg
+C_Tutorial.pdf
+Start_Here.pdf
 
 # IDE and editor files
 .vscode/
